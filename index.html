@@ -9,13 +9,12 @@
         img.logo { max-width: 130px; margin-bottom: 15px; }
         .tabs { display: flex; margin-bottom: 20px; }
         .tab { flex: 1; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; color: #888; }
-        .tab.active { color: #c9302c; border-bottom: 2px solid #c9302c; }
+        .tab.active { color: #c9302c; border-bottom: 3px solid #c9302c; }
         .input-group { text-align: left; margin-bottom: 15px; }
         label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
         select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .cam-btn { background: #f8f9fa; border: 2px dashed #ddd; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
         #preview { width: 100%; display: none; margin-top: 10px; border-radius: 5px; }
-        .btn-group { display: flex; gap: 10px; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
         #status { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 13px; font-weight: 600; }
         .err { background: #ffdce0; color: #a94442; } .ok { background: #dff0d8; color: #3c763d; } .load { background: #e0f2fe; color: #075985; }
@@ -40,7 +39,7 @@
             </select>
         </div>
         <div id="sect-att">
-            <div class="input-group"><label>Password / PIN</label><input type="password" id="pw" placeholder="Enter PIN"></div>
+            <div class="input-group"><label>PIN</label><input type="password" id="pw" placeholder="Enter PIN"></div>
             <div class="cam-btn" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
                 <input type="file" id="cam" accept="image/*" capture="user" style="display:none" onchange="pre(event)">
                 <img id="preview">
@@ -58,7 +57,8 @@
         <div id="status"></div>
     </div>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQEtrFbHJVwxkYFRx71Kr0k3fqtwwb6TZY3J-1EgZtwkw8sgn603zTfZMMFjj0rNc0/exec";
+        // REPLACE THIS URL WITH YOUR URL FROM STEP 3!
+        const SCRIPT_URL = "PASTE_YOUR_NEW_WEB_APP_URL_HERE"; 
         let capturedImg = "";
 
         function sw(m) {
@@ -105,7 +105,6 @@
                     const lat = pos.coords.latitude.toFixed(6), lon = pos.coords.longitude.toFixed(6);
                     const ts = new Date().toLocaleString('en-GB', {timeZone:'Asia/Kolkata'});
                     
-                    // PAINT WATERMARK ON IMAGE
                     const c = document.createElement('canvas'), ctx = c.getContext('2d'), i = new Image();
                     i.src = capturedImg;
                     i.onload = () => {
@@ -127,7 +126,7 @@
             .then(r => r.json()).then(res => {
                 msg(res.message, res.status=='success'?'ok':'err');
                 if(res.status=='success') { capturedImg=""; document.getElementById('preview').style.display='none'; }
-            }).catch(() => msg("❌ Error - Re-authorize the Apps Script!", "err"));
+            }).catch(() => msg("❌ Network Error - Check script link", "err"));
         }
     </script>
 </body>
