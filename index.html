@@ -21,7 +21,7 @@
 </head>
 <body>
     <div class="card">
-        <img src="Logo.png" class="logo">
+        <img src="Logo.png" class="logo" alt="INECOLIV Logo">
         <div style="display:flex; margin-bottom:20px;">
             <div id="t1" class="tab-btn active" onclick="sw('att')">Attendance</div>
             <div id="t2" class="tab-btn" onclick="sw('pw')">PIN</div>
@@ -54,7 +54,8 @@
         <div id="status"></div>
     </div>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyrVLlEOocbZJkLg7aRVvb29E3Xm2YRR70w4Yg0Uf7fZOqliNsL5gC51DN-e6YgP5L/exec";
+        // YOUR BRAND NEW URL IS RIGHT HERE!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
         function sw(m) {
@@ -62,6 +63,7 @@
             document.getElementById('sect-pw').style.display = m=='pw'?'block':'none';
             document.getElementById('t1').className = m=='att'?'tab-btn active':'tab-btn';
             document.getElementById('t2').className = m=='pw'?'tab-btn active':'tab-btn';
+            document.getElementById('status').style.display = 'none';
         }
 
         function pre(e) {
@@ -77,17 +79,17 @@
                     document.getElementById('preview').style.display = 'block';
                 };
             };
-            reader.readAsDataURL(e.target.files[0]);
+            if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
         }
 
         function run(act) {
             const em = document.getElementById('email').value, s = document.getElementById('status');
-            if(!em) { s.innerText="Select Name"; s.className="err"; s.style.display="block"; return; }
+            if(!em) { s.innerText="⚠️ Select Name"; s.className="err"; s.style.display="block"; return; }
             
             if(act === 'Change Password') {
                 send({actionType: act, email: em, oldPassword: document.getElementById('old').value, newPassword: document.getElementById('new').value});
             } else {
-                if(!rawPhoto || !document.getElementById('pw').value) { s.innerText="PIN & Photo Required"; s.className="err"; s.style.display="block"; return; }
+                if(!rawPhoto || !document.getElementById('pw').value) { s.innerText="⚠️ PIN & Photo Required"; s.className="err"; s.style.display="block"; return; }
                 s.innerText="📍 Getting GPS..."; s.className="load"; s.style.display="block";
                 navigator.geolocation.getCurrentPosition(p => {
                     const lat = p.coords.latitude.toFixed(6), lon = p.coords.longitude.toFixed(6), ts = new Date().toLocaleString('en-GB', {timeZone:'Asia/Kolkata'});
@@ -98,18 +100,24 @@
                     ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
                     ctx.fillText(ts, 15, c.height-35); ctx.fillText(lat+", "+lon, 15, c.height-12);
                     send({actionType: act, email: em, password: document.getElementById('pw').value, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1]});
-                }, () => { s.innerText="Enable GPS"; s.className="err"; }, {enableHighAccuracy:true});
+                }, () => { s.innerText="❌ Enable GPS/Location"; s.className="err"; }, {enableHighAccuracy:true});
             }
         }
 
         function send(d) {
-            document.getElementById('status').innerText="⏳ Processing...";
+            document.getElementById('status').innerText="⏳ Processing... Please wait.";
+            document.getElementById('status').className="load";
+            
             fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(d)})
             .then(() => {
-                document.getElementById('status').innerText="✅ Successful! Check Sheet.";
+                document.getElementById('status').innerText="✅ Successful! Check your Google Sheet.";
                 document.getElementById('status').className="ok";
                 rawPhoto=""; document.getElementById('preview').style.display='none';
-            }).catch(() => { document.getElementById('status').innerText="❌ Network Error"; });
+                document.getElementById('pw').value = '';
+            }).catch(() => { 
+                document.getElementById('status').innerText="❌ Network Error. Try again."; 
+                document.getElementById('status').className="err";
+            });
         }
     </script>
 </body>
