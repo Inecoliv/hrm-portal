@@ -56,7 +56,7 @@
         <div id="status"></div>
     </div>
     <script>
-        // ⚠️ PASTE YOUR NEWEST SCRIPT URL HERE:
+        // ⚠️ PASTE YOUR BRAND NEW SCRIPT URL HERE:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
@@ -119,10 +119,10 @@
             })
             .then(r => r.json())
             .then(res => {
+                // THIS LINE MAKES SURE IT PRINTS THE EXACT MESSAGE (Check in OR Check out)
                 s.innerText = res.message;
                 s.className = (res.status === 'success') ? "ok" : "err";
                 
-                // If success, clear the appropriate fields
                 if(res.status === 'success') {
                     if (d.actionType === 'Change Password') {
                         document.getElementById('old').value = '';
