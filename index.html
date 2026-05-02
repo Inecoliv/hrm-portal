@@ -56,8 +56,8 @@
         <div id="status"></div>
     </div>
     <script>
-        // ⚠️ PASTE YOUR BRAND NEW GOOGLE SCRIPT URL HERE:
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
+        // ⚠️ PASTE YOUR NEWEST SCRIPT URL HERE:
+        const SCRIPT_URL = "PASTE_YOUR_NEW_URL_HERE";
         let rawPhoto = "";
 
         function sw(m) {
@@ -89,7 +89,9 @@
             if(!em) { s.innerText="⚠️ Select Name"; s.className="err"; s.style.display="block"; return; }
             
             if(act === 'Change Password') {
-                send({actionType: act, email: em, oldPassword: document.getElementById('old').value, newPassword: document.getElementById('new').value});
+                const o = document.getElementById('old').value, n = document.getElementById('new').value;
+                if(!o || !n) { s.innerText="⚠️ Fill both PIN fields."; s.className="err"; s.style.display="block"; return; }
+                send({actionType: act, email: em, oldPassword: o, newPassword: n});
             } else {
                 if(!rawPhoto || !document.getElementById('pw').value) { s.innerText="⚠️ PIN & Photo Required"; s.className="err"; s.style.display="block"; return; }
                 s.innerText="📍 Getting GPS..."; s.className="load"; s.style.display="block";
@@ -108,7 +110,7 @@
 
         function send(d) {
             const s = document.getElementById('status');
-            s.innerText="⏳ Processing... Please wait."; s.className="load";
+            s.innerText="⏳ Processing... Please wait."; s.className="load"; s.style.display="block";
             
             fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -119,11 +121,18 @@
             .then(res => {
                 s.innerText = res.message;
                 s.className = (res.status === 'success') ? "ok" : "err";
+                
+                // If success, clear the appropriate fields
                 if(res.status === 'success') {
-                    rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
+                    if (d.actionType === 'Change Password') {
+                        document.getElementById('old').value = '';
+                        document.getElementById('new').value = '';
+                    } else {
+                        rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
+                    }
                 }
             }).catch(e => { 
-                s.innerText="❌ System Error. Check Google Apps Script."; s.className="err";
+                s.innerText="❌ System Error. Check network."; s.className="err";
             });
         }
     </script>
