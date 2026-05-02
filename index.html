@@ -16,7 +16,9 @@
         #preview { width: 100%; display: none; margin-top: 10px; border-radius: 8px; }
         button { width: 100%; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
         #status { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; font-size: 14px; font-weight: bold; }
-        .err { background: #fee2e2; color: #991b1b; } .ok { background: #d1fae5; color: #065f46; } .load { background: #e0f2fe; color: #075985; }
+        .err { background: #fee2e2; color: #991b1b; border: 1px solid #f5c6cb;} 
+        .ok { background: #d1fae5; color: #065f46; border: 1px solid #d6e9c6;} 
+        .load { background: #e0f2fe; color: #075985; border: 1px solid #b3e5fc;}
     </style>
 </head>
 <body>
@@ -54,7 +56,7 @@
         <div id="status"></div>
     </div>
     <script>
-        // YOUR BRAND NEW URL IS RIGHT HERE!
+        // ⚠️ PASTE YOUR BRAND NEW GOOGLE SCRIPT URL HERE:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
@@ -105,18 +107,23 @@
         }
 
         function send(d) {
-            document.getElementById('status').innerText="⏳ Processing... Please wait.";
-            document.getElementById('status').className="load";
+            const s = document.getElementById('status');
+            s.innerText="⏳ Processing... Please wait."; s.className="load";
             
-            fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(d)})
-            .then(() => {
-                document.getElementById('status').innerText="✅ Successful! Check your Google Sheet.";
-                document.getElementById('status').className="ok";
-                rawPhoto=""; document.getElementById('preview').style.display='none';
-                document.getElementById('pw').value = '';
-            }).catch(() => { 
-                document.getElementById('status').innerText="❌ Network Error. Try again."; 
-                document.getElementById('status').className="err";
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(d)
+            })
+            .then(r => r.json())
+            .then(res => {
+                s.innerText = res.message;
+                s.className = (res.status === 'success') ? "ok" : "err";
+                if(res.status === 'success') {
+                    rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
+                }
+            }).catch(e => { 
+                s.innerText="❌ System Error. Check Google Apps Script."; s.className="err";
             });
         }
     </script>
