@@ -7,93 +7,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 420px;
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        /* UPGRADED: CSS for your actual image logo */
-        .logo-img {
-            max-width: 180px; /* Adjust this number to make logo bigger/smaller */
-            height: auto;
-            margin-bottom: 25px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .clock {
-            font-size: 14px;
-            color: #627d98;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        .input-group {
-            text-align: left;
-            margin-bottom: 25px;
-        }
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            color: #334e68;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .input-group select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #bcccdc;
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s;
-            background-color: white;
-            cursor: pointer;
-        }
-        .input-group select:focus {
-            outline: none;
-            border-color: #2680eb;
-            box-shadow: 0 0 0 3px rgba(38,128,235,0.1);
-        }
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: white;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-in { background-color: #10b981; box-shadow: 0 4px 6px rgba(16,185,129,0.2); }
-        .btn-in:hover { background-color: #059669; transform: translateY(-1px); }
-        .btn-in:active { transform: translateY(1px); }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;}
+        .card { background: #ffffff; width: 100%; max-width: 420px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .logo-img { max-width: 150px; height: auto; margin-bottom: 20px; }
+        .clock { font-size: 14px; color: #627d98; margin-bottom: 20px; font-weight: 600; }
         
-        .btn-out { background-color: #ef4444; box-shadow: 0 4px 6px rgba(239,68,68,0.2); }
-        .btn-out:hover { background-color: #dc2626; transform: translateY(-1px); }
-        .btn-out:active { transform: translateY(1px); }
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; font-weight: 600; color: #64748b; transition: 0.3s; }
+        .tab.active { color: #c9302c; border-bottom: 3px solid #c9302c; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; color: #334e68; font-weight: 600; margin-bottom: 5px; }
+        .input-group select, .input-group input { width: 100%; padding: 12px; border: 1px solid #bcccdc; border-radius: 8px; font-size: 15px; font-family: 'Inter', sans-serif; }
         
-        button:disabled { background-color: #9fb3c8; cursor: not-allowed; transform: none; box-shadow: none; }
-        
+        /* Camera Button Style */
+        .camera-btn { background: #e2e8f0; color: #334e68; padding: 12px; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; border: 2px dashed #94a3b8; display: inline-block; text-align: center; transition: 0.3s;}
+        .camera-btn:hover { background: #cbd5e1; }
+        #photo-preview { max-width: 100%; margin-top: 10px; border-radius: 8px; display: none; }
+
+        .button-group { display: flex; gap: 15px; margin-top: 20px; }
+        button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-in { background-color: #10b981; } .btn-out { background-color: #ef4444; } .btn-update { background-color: #2563eb; width: 100%; margin-top:10px;}
+        button:disabled { background-color: #9fb3c8; cursor: not-allowed; }
         #status-box { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 14px; font-weight: 600; display: none; }
         .status-success { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
         .status-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
@@ -104,9 +42,13 @@
 
     <div class="card">
         <img src="Logo.png" alt="INECOLIV Logo" class="logo-img">
-        
         <div class="clock" id="live-clock">Loading time...</div>
         
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('attendance')">Attendance</div>
+            <div class="tab" onclick="switchTab('password')">Change Password</div>
+        </div>
+
         <div class="input-group">
             <label for="email">Select Employee</label>
             <select id="email" required>
@@ -118,92 +60,181 @@
                 <option value="sriram@inecoliv.com">Sriram</option>
             </select>
         </div>
-        
-        <div class="button-group">
-            <button class="btn-in" id="btn-in" onclick="processPunch('Check In')">Check In</button>
-            <button class="btn-out" id="btn-out" onclick="processPunch('Check Out')">Check Out</button>
+
+        <div id="tab-attendance" class="tab-content active">
+            <div class="input-group">
+                <label for="password">Password / PIN</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <div class="input-group">
+                <label>Live Photo Verification</label>
+                <label class="camera-btn" for="camera-input">📷 Take Selfie</label>
+                <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none;" onchange="compressImage(event)">
+                <img id="photo-preview" src="" alt="Preview">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-in" onclick="processData('Check In')">Check In</button>
+                <button class="btn-out" onclick="processData('Check Out')">Check Out</button>
+            </div>
+        </div>
+
+        <div id="tab-password" class="tab-content">
+            <div class="input-group">
+                <label>Current Password</label>
+                <input type="password" id="old-password" placeholder="Enter old password">
+            </div>
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="new-password" placeholder="Enter new password">
+            </div>
+            <button class="btn-update" onclick="processData('Change Password')">Update Password</button>
         </div>
         
         <div id="status-box"></div>
     </div>
 
     <script>
-        // Your exact working API link is securely locked in right here
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQEtrFbHJVwxkYFRx71Kr0k3fqtwwb6TZY3J-1EgZtwkw8sgn603zTfZMMFjj0rNc0/exec";
+        // ⚠️ PASTE YOUR EXACT GOOGLE APPS SCRIPT URL HERE
+        const SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_GOES_HERE";
 
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-clock').innerText = now.toLocaleDateString() + " • " + now.toLocaleTimeString();
         }, 1000);
 
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if(tab === 'attendance') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('tab-attendance').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('tab-password').classList.add('active');
+            }
+            document.getElementById('status-box').style.display = 'none';
+        }
+
         function showStatus(message, type) {
             const box = document.getElementById('status-box');
             box.style.display = 'block';
-            box.className = ''; 
-            box.classList.add('status-' + type);
+            box.className = 'status-' + type;
             box.innerText = message;
         }
 
-        function setButtonsDisabled(disabled) {
-            document.getElementById('btn-in').disabled = disabled;
-            document.getElementById('btn-out').disabled = disabled;
+        function compressImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; 
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    document.getElementById('photo-preview').src = canvas.toDataURL('image/jpeg', 0.8);
+                    document.getElementById('photo-preview').style.display = 'block';
+                }
+            }
         }
 
-        function processPunch(actionType) {
+        function processData(actionType) {
             const emailInput = document.getElementById('email').value.trim();
-            
-            if (!emailInput) {
-                showStatus("⚠️ Please select your name from the list.", "error");
+            if (!emailInput) { showStatus("⚠️ Please select your name.", "error"); return; }
+
+            if (actionType === "Change Password") {
+                const oldPass = document.getElementById('old-password').value.trim();
+                const newPass = document.getElementById('new-password').value.trim();
+                if (!oldPass || !newPass) { showStatus("⚠️ Enter both old and new passwords.", "error"); return; }
+                sendToGoogle({ email: emailInput, actionType: actionType, oldPassword: oldPass, newPassword: newPass }, "🔒 Updating Password...");
                 return;
             }
 
-            setButtonsDisabled(true);
+            const passwordInput = document.getElementById('password').value.trim();
+            const previewSrc = document.getElementById('photo-preview').src;
+            
+            if (!passwordInput) { showStatus("⚠️ Please enter your password.", "error"); return; }
+            if (!previewSrc || previewSrc.length < 100) { showStatus("📸 Please take a live selfie first!", "error"); return; }
+
             showStatus("📍 Fetching GPS Location...", "loading");
 
             if (!navigator.geolocation) {
-                showStatus("⚠️ Geolocation is not supported by your browser.", "error");
-                setButtonsDisabled(false);
-                return;
+                showStatus("⚠️ Geolocation is not supported.", "error"); return;
             }
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const data = {
-                        email: emailInput,
-                        actionType: actionType,
-                        timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
-                        location: position.coords.latitude + ", " + position.coords.longitude
+                    const timestampStr = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+                    const locStr = position.coords.latitude.toFixed(6) + ", " + position.coords.longitude.toFixed(6);
+
+                    showStatus("🎨 Watermarking Photo...", "loading");
+
+                    const img = new Image();
+                    img.src = previewSrc;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+
+                        ctx.drawImage(img, 0, 0);
+                        ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; 
+                        ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+                        ctx.font = "bold 14px Arial";
+                        ctx.fillStyle = "white";
+                        ctx.fillText(timestampStr, 10, canvas.height - 30);
+                        ctx.fillText("GPS: " + locStr, 10, canvas.height - 10);
+
+                        const finalPhotoData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+
+                        const data = {
+                            email: emailInput,
+                            password: passwordInput,
+                            actionType: actionType,
+                            photoData: finalPhotoData,
+                            timestamp: timestampStr,
+                            location: locStr
+                        };
+                        sendToGoogle(data, "⏳ Uploading Photo & Saving Data...");
                     };
-
-                    showStatus("⏳ Verifying user and saving data...", "loading");
-
-                    fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.status === "success") {
-                            showStatus(result.message, "success");
-                        } else {
-                            showStatus(result.message, "error");
-                        }
-                    })
-                    .catch(error => {
-                        showStatus("❌ Network Error. Please try again.", "error");
-                    })
-                    .finally(() => {
-                        setButtonsDisabled(false);
-                    });
                 },
-                (error) => {
-                    showStatus("⚠️ Location access denied. Please allow GPS.", "error");
-                    setButtonsDisabled(false);
-                },
+                (error) => { showStatus("⚠️ Location access denied. Please allow GPS.", "error"); },
                 { enableHighAccuracy: true }
             );
+        }
+
+        function sendToGoogle(data, loadMessage) {
+            showStatus(loadMessage, "loading");
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === "success") {
+                    showStatus(result.message, "success");
+                    document.getElementById('password').value = "";
+                    document.getElementById('old-password').value = "";
+                    document.getElementById('new-password').value = "";
+                    document.getElementById('photo-preview').style.display = 'none';
+                    document.getElementById('photo-preview').src = "";
+                } else {
+                    showStatus(result.message, "error");
+                }
+            })
+            .catch(error => showStatus("❌ Network Error. Please try again.", "error"));
         }
     </script>
 </body>
