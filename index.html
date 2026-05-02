@@ -11,13 +11,15 @@
         .tab { flex: 1; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; color: #888; }
         .tab.active { color: #c9302c; border-bottom: 2px solid #c9302c; }
         .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
         select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .cam-btn { background: #f8f9fa; border: 2px dashed #ddd; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
-        #preview { width: 100%; display: none; margin-top: 10px; border-radius: 5px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        #status { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 13px; font-weight: 600; }
-        .err { background: #ffdce0; color: #a94442; } .ok { background: #dff0d8; color: #3c763d; } .load { background: #e0f2fe; color: #075985; }
+        .cam-btn { background: #f8f9fa; border: 2px dashed #ddd; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 14px; font-weight: bold;}
+        #preview { width: 100%; display: none; margin-top: 10px; border-radius: 5px; border: 1px solid #ddd;}
+        button { width: 100%; padding: 14px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px;}
+        #status { margin-top: 15px; padding: 12px; border-radius: 5px; display: none; font-size: 13px; font-weight: 600; line-height: 1.4;}
+        .err { background: #ffdce0; color: #a94442; border: 1px solid #f5c6cb;} 
+        .ok { background: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6;} 
+        .load { background: #e0f2fe; color: #075985; border: 1px solid #b3e5fc;}
     </style>
 </head>
 <body>
@@ -30,7 +32,7 @@
         <div class="input-group">
             <label>Employee Name</label>
             <select id="email">
-                <option value="">-- Select --</option>
+                <option value="">-- Select Your Name --</option>
                 <option value="inecolivtechnology@gmail.com">Manager</option>
                 <option value="dinesh@inecoliv.com">Dinesh Kumar</option>
                 <option value="vanitha@inecoliv.com">Vanitha</option>
@@ -39,25 +41,25 @@
             </select>
         </div>
         <div id="sect-att">
-            <div class="input-group"><label>PIN</label><input type="password" id="pw" placeholder="Enter PIN"></div>
+            <div class="input-group"><label>Enter PIN</label><input type="password" id="pw" placeholder="****"></div>
             <div class="cam-btn" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
                 <input type="file" id="cam" accept="image/*" capture="user" style="display:none" onchange="pre(event)">
                 <img id="preview">
             </div>
-            <div class="btn-group">
+            <div style="display:flex; gap:10px;">
                 <button style="background:#10b981" onclick="run('Check In')">Check In</button>
                 <button style="background:#ef4444" onclick="run('Check Out')">Check Out</button>
             </div>
         </div>
         <div id="sect-pw" style="display:none">
-            <div class="input-group"><label>Old PIN</label><input type="password" id="old"></div>
+            <div class="input-group"><label>Current PIN</label><input type="password" id="old"></div>
             <div class="input-group"><label>New PIN</label><input type="password" id="new"></div>
             <button style="background:#2563eb" onclick="run('Change Password')">Update PIN</button>
         </div>
         <div id="status"></div>
     </div>
     <script>
-        // Updated with your NEW SCRIPT ID
+        // ⚠️ PASTE YOUR NEWEST DEPLOYMENT URL HERE!
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0UxeZWaUiBt9QgBuDU8h6cFkhqD4ylENoMbahtddIG9QLeXzqjyqW2qK_Gv9vL-si/exec"; 
         let capturedImg = "";
 
@@ -91,16 +93,17 @@
 
         function run(act) {
             const em = document.getElementById('email').value;
-            if(!em) return msg("⚠️ Select Name", "err");
+            if(!em) return msg("⚠️ Please select your name.", "err");
 
             if(act === 'Change Password') {
                 const o = document.getElementById('old').value, n = document.getElementById('new').value;
-                if(!o || !n) return msg("⚠️ Fill both PINs", "err");
+                if(!o || !n) return msg("⚠️ Please fill both PIN fields.", "err");
                 send({actionType: act, email: em, oldPassword: o, newPassword: n});
             } else {
                 const p = document.getElementById('pw').value;
-                if(!p || !capturedImg) return msg("⚠️ PIN & Selfie required", "err");
-                msg("📍 Fetching GPS...", "load");
+                if(!p || !capturedImg) return msg("⚠️ PIN and Selfie are required.", "err");
+                
+                msg("📍 Getting GPS Location...", "load");
                 navigator.geolocation.getCurrentPosition(pos => {
                     const lat = pos.coords.latitude.toFixed(6), lon = pos.coords.longitude.toFixed(6);
                     const ts = new Date().toLocaleString('en-GB', {timeZone:'Asia/Kolkata'});
@@ -114,20 +117,42 @@
                         ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
                         ctx.fillText(ts, 15, c.height-35);
                         ctx.fillText("LAT: "+lat+" | LON: "+lon, 15, c.height-12);
-                        send({actionType: act, email: em, password: p, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1]});
+                        
+                        send({
+                            actionType: act, 
+                            email: em, 
+                            password: p, 
+                            location: lat+", "+lon, 
+                            photoData: c.toDataURL('image/jpeg').split(',')[1]
+                        });
                     };
-                }, () => msg("❌ Enable GPS"), {enableHighAccuracy:true});
+                }, () => msg("❌ Please enable GPS/Location to check in.", "err"), {enableHighAccuracy:true});
             }
         }
 
         function send(d) {
-            msg("⏳ Processing...", "load");
-            fetch(SCRIPT_URL, {method:'POST', mode: 'no-cors', body:JSON.stringify(d)})
-            .then(() => {
-                msg("✅ Request Sent!", "ok");
-                capturedImg=""; document.getElementById('preview').style.display='none';
-                document.getElementById('pw').value = "";
-            }).catch(() => msg("❌ Network Error", "err"));
+            msg("⏳ Sending to Google Sheet...", "load");
+            // Removed no-cors so we can see the real error message if it fails
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors', 
+                body: JSON.stringify(d)
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === "success") {
+                    msg(res.message, "ok");
+                    capturedImg = ""; 
+                    document.getElementById('preview').style.display = 'none';
+                    document.getElementById('pw').value = "";
+                } else {
+                    msg("❌ " + res.message, "err");
+                }
+            })
+            .catch(e => {
+                msg("❌ Network Error: Make sure you deployed as 'Anyone' and updated the URL.", "err");
+                console.error(e);
+            });
         }
     </script>
 </body>
