@@ -25,16 +25,14 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             text-align: center;
         }
-        .logo-area {
-            background-color: #c9302c;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 24px;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            display: inline-block;
+        /* UPGRADED: CSS for your actual image logo */
+        .logo-img {
+            max-width: 180px; /* Adjust this number to make logo bigger/smaller */
+            height: auto;
+            margin-bottom: 25px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         .clock {
             font-size: 14px;
@@ -53,7 +51,6 @@
             font-weight: 600;
             margin-bottom: 8px;
         }
-        /* UPGRADED: Now styles the Dropdown menu too */
         .input-group select {
             width: 100%;
             padding: 14px 16px;
@@ -106,7 +103,7 @@
 <body>
 
     <div class="card">
-        <div class="logo-area">INECOLIV</div>
+        <img src="Logo.png" alt="INECOLIV Logo" class="logo-img">
         
         <div class="clock" id="live-clock">Loading time...</div>
         
@@ -114,13 +111,12 @@
             <label for="email">Select Employee</label>
             <select id="email" required>
                 <option value="" disabled selected>-- Choose your name --</option>
-                
-                <option value="inecolivtechnology@gmail.com">Admin / Manager</option>
+                <option value="inecolivtechnology@gmail.com">Manager</option>
                 <option value="dinesh@inecoliv.com">Dinesh Kumar</option>
                 <option value="vanitha@inecoliv.com">Vanitha</option>
                 <option value="ambeprakashvyas@inecoliv.com">Ambe Prakash</option>
                 <option value="sriram@inecoliv.com">Sriram</option>
-                </select>
+            </select>
         </div>
         
         <div class="button-group">
@@ -132,8 +128,8 @@
     </div>
 
     <script>
-        // ⚠️ PASTE YOUR EXACT GOOGLE APPS SCRIPT URL HERE!
-        const SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_GOES_HERE";
+        // Your exact working API link is securely locked in right here
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQEtrFbHJVwxkYFRx71Kr0k3fqtwwb6TZY3J-1EgZtwkw8sgn603zTfZMMFjj0rNc0/exec";
 
         setInterval(() => {
             const now = new Date();
