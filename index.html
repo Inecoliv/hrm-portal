@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INECOLIV - Employee Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .logo-area {
+            background-color: #c9302c; /* INECOLIV Red */
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        .clock {
+            font-size: 14px;
+            color: #627d98;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #334e68;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #bcccdc;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #2680eb;
+            box-shadow: 0 0 0 3px rgba(38,128,235,0.1);
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-in {
+            background-color: #10b981;
+            box-shadow: 0 4px 6px rgba(16,185,129,0.2);
+        }
+        .btn-in:hover { background-color: #059669; transform: translateY(-1px); }
+        .btn-in:active { transform: translateY(1px); }
+        
+        .btn-out {
+            background-color: #ef4444;
+            box-shadow: 0 4px 6px rgba(239,68,68,0.2);
+        }
+        .btn-out:hover { background-color: #dc2626; transform: translateY(-1px); }
+        .btn-out:active { transform: translateY(1px); }
+        
+        button:disabled {
+            background-color: #9fb3c8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
+        .status-success { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .status-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .status-loading { background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo-area">INECOLIV</div>
+        
+        <div class="clock" id="live-clock">Loading time...</div>
+        
+        <div class="input-group">
+            <label for="email">Employee Email</label>
+            <input type="email" id="email" placeholder="e.g. employee@inecoliv.com" required>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-in" id="btn-in" onclick="processPunch('Check In')">Check In</button>
+            <button class="btn-out" id="btn-out" onclick="processPunch('Check Out')">Check Out</button>
+        </div>
+        
+        <div id="status-box"></div>
+    </div>
+
+    <script>
+        // ⚠️ PASTE YOUR EXACT GOOGLE APPS SCRIPT URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQEtrFbHJVwxkYFRx71Kr0k3fqtwwb6TZY3J-1EgZtwkw8sgn603zTfZMMFjj0rNc0/exec";
+
+        // Live Clock Function
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleDateString() + " • " + now.toLocaleTimeString();
+        }, 1000);
+
+        function showStatus(message, type) {
+            const box = document.getElementById('status-box');
+            box.style.display = 'block';
+            box.className = ''; // reset classes
+            box.classList.add('status-' + type);
+            box.innerText = message;
+        }
+
+        function setButtonsDisabled(disabled) {
+            document.getElementById('btn-in').disabled = disabled;
+            document.getElementById('btn-out').disabled = disabled;
+        }
+
+        function processPunch(actionType) {
+            const emailInput = document.getElementById('email').value.trim();
+            
+            if (!emailInput) {
+                showStatus("⚠️ Please enter your registered email first.", "error");
+                return;
+            }
+
+            setButtonsDisabled(true);
+            showStatus("📍 Fetching GPS Location...", "loading");
+
+            if (!navigator.geolocation) {
+                showStatus("⚠️ Geolocation is not supported by your browser.", "error");
+                setButtonsDisabled(false);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const data = {
+                        email: emailInput,
+                        actionType: actionType,
+                        timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+                        location: position.coords.latitude + ", " + position.coords.longitude
+                    };
+
+                    showStatus("⏳ Verifying user and saving data...", "loading");
+
+                    fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.status === "success") {
+                            showStatus(result.message, "success");
+                        } else {
+                            showStatus(result.message, "error"); // Shows the duplicate or invalid user errors
+                        }
+                    })
+                    .catch(error => {
+                        showStatus("❌ Network Error. Please try again.", "error");
+                    })
+                    .finally(() => {
+                        setButtonsDisabled(false);
+                    });
+                },
+                (error) => {
+                    showStatus("⚠️ Location access denied. Please allow GPS.", "error");
+                    setButtonsDisabled(false);
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+    </script>
+</body>
+</html>
