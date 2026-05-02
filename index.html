@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INECOLIV - Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INECOLIV Portal</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
-        .card { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); text-align: center; }
-        .logo { max-width: 140px; margin-bottom: 15px; }
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; color: #666; font-weight: 600; }
-        .tab.active { color: #c9302c; border-bottom: 3px solid #c9302c; }
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .card { background: white; width: 100%; max-width: 380px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        img.logo { max-width: 130px; margin-bottom: 15px; }
+        .tabs { display: flex; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; color: #888; }
+        .tab.active { color: #c9302c; border-bottom: 2px solid #c9302c; }
         .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #444; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
-        .cam-box { background: #f8f9fa; border: 2px dashed #cbd5e0; padding: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; }
-        #preview { width: 100%; border-radius: 8px; display: none; margin-top: 10px; }
+        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .cam-btn { background: #f8f9fa; border: 2px dashed #ddd; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; }
+        #preview { width: 100%; display: none; margin-top: 10px; border-radius: 5px; }
         .btn-group { display: flex; gap: 10px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: 700; color: white; cursor: pointer; }
-        .btn-in { background: #10b981; } .btn-out { background: #ef4444; }
-        #status { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; font-size: 13px; font-weight: 600; }
-        .err { background: #fee2e2; color: #991b1b; } .ok { background: #d1fae5; color: #065f46; } .load { background: #e0f2fe; color: #075985; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #status { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 13px; font-weight: 600; }
+        .err { background: #ffdce0; color: #a94442; } .ok { background: #dff0d8; color: #3c763d; } .load { background: #e0f2fe; color: #075985; }
     </style>
 </head>
 <body>
@@ -30,9 +26,8 @@
         <img src="Logo.png" class="logo">
         <div class="tabs">
             <div id="t1" class="tab active" onclick="sw('att')">Attendance</div>
-            <div id="t2" class="tab" onclick="sw('pw')">Password</div>
+            <div id="t2" class="tab" onclick="sw('pw')">PIN</div>
         </div>
-
         <div class="input-group">
             <label>Employee Name</label>
             <select id="email">
@@ -44,50 +39,45 @@
                 <option value="sriram@inecoliv.com">Sriram</option>
             </select>
         </div>
-
         <div id="sect-att">
-            <div class="input-group"><label>Password</label><input type="password" id="pw" placeholder="PIN"></div>
-            <div class="cam-box" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
+            <div class="input-group"><label>Password / PIN</label><input type="password" id="pw" placeholder="Enter PIN"></div>
+            <div class="cam-btn" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
                 <input type="file" id="cam" accept="image/*" capture="user" style="display:none" onchange="pre(event)">
                 <img id="preview">
             </div>
             <div class="btn-group">
-                <button class="btn-in" onclick="run('Check In')">Check In</button>
-                <button class="btn-out" onclick="run('Check Out')">Check Out</button>
+                <button style="background:#10b981" onclick="run('Check In')">Check In</button>
+                <button style="background:#ef4444" onclick="run('Check Out')">Check Out</button>
             </div>
         </div>
-
         <div id="sect-pw" style="display:none">
-            <div class="input-group"><label>Old Password</label><input type="password" id="old"></div>
-            <div class="input-group"><label>New Password</label><input type="password" id="new"></div>
-            <button style="background:#2563eb; width:100%" onclick="run('Change Password')">Update PIN</button>
+            <div class="input-group"><label>Old PIN</label><input type="password" id="old"></div>
+            <div class="input-group"><label>New PIN</label><input type="password" id="new"></div>
+            <button style="background:#2563eb" onclick="run('Change Password')">Update PIN</button>
         </div>
         <div id="status"></div>
     </div>
-
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQEtrFbHJVwxkYFRx71Kr0k3fqtwwb6TZY3J-1EgZtwkw8sgn603zTfZMMFjj0rNc0/exec";
-        let rawImg = "";
+        let capturedImg = "";
 
-        function sw(mode) {
-            document.getElementById('sect-att').style.display = mode=='att'?'block':'none';
-            document.getElementById('sect-pw').style.display = mode=='pw'?'block':'none';
-            document.getElementById('t1').className = mode=='att'?'tab active':'tab';
-            document.getElementById('t2').className = mode=='pw'?'tab active':'tab';
+        function sw(m) {
+            document.getElementById('sect-att').style.display = m=='att'?'block':'none';
+            document.getElementById('sect-pw').style.display = m=='pw'?'block':'none';
+            document.getElementById('t1').className = m=='att'?'tab active':'tab';
+            document.getElementById('t2').className = m=='pw'?'tab active':'tab';
         }
 
         function pre(e) {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = (ex) => {
-                const i = new Image();
-                i.src = ex.target.result;
+            const f = e.target.files[0], r = new FileReader();
+            r.onload = (ev) => {
+                const i = new Image(); i.src = ev.target.result;
                 i.onload = () => {
                     const c = document.createElement('canvas');
                     c.width = 600; c.height = (i.height/i.width)*600;
                     c.getContext('2d').drawImage(i, 0, 0, c.width, c.height);
-                    rawImg = c.toDataURL('image/jpeg', 0.7);
-                    document.getElementById('preview').src = rawImg;
+                    capturedImg = c.toDataURL('image/jpeg', 0.8);
+                    document.getElementById('preview').src = capturedImg;
                     document.getElementById('preview').style.display = 'block';
                 };
             };
@@ -105,29 +95,29 @@
 
             if(act === 'Change Password') {
                 const o = document.getElementById('old').value, n = document.getElementById('new').value;
-                if(!o || !n) return msg("⚠️ Fill both", "err");
+                if(!o || !n) return msg("⚠️ Fill both PINs", "err");
                 send({actionType: act, email: em, oldPassword: o, newPassword: n});
             } else {
                 const p = document.getElementById('pw').value;
-                if(!p || !rawImg) return msg("⚠️ PIN & Photo required", "err");
+                if(!p || !capturedImg) return msg("⚠️ PIN & Selfie required", "err");
                 msg("📍 Fetching GPS...", "load");
                 navigator.geolocation.getCurrentPosition(pos => {
                     const lat = pos.coords.latitude.toFixed(6), lon = pos.coords.longitude.toFixed(6);
                     const ts = new Date().toLocaleString('en-GB', {timeZone:'Asia/Kolkata'});
                     
-                    // WATERMARK LOGIC
-                    const c = document.createElement('canvas');
-                    const i = document.getElementById('preview');
-                    c.width = i.naturalWidth; c.height = i.naturalHeight;
-                    const ctx = c.getContext('2d');
-                    ctx.drawImage(i, 0, 0);
-                    ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, c.height-60, c.width, 60);
-                    ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
-                    ctx.fillText(ts, 15, c.height-35);
-                    ctx.fillText("LAT: "+lat+" | LON: "+lon, 15, c.height-12);
-                    
-                    send({actionType: act, email: em, password: p, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1]});
-                }, () => msg("❌ Enable GPS", "err"), {enableHighAccuracy:true});
+                    // PAINT WATERMARK ON IMAGE
+                    const c = document.createElement('canvas'), ctx = c.getContext('2d'), i = new Image();
+                    i.src = capturedImg;
+                    i.onload = () => {
+                        c.width = i.width; c.height = i.height;
+                        ctx.drawImage(i, 0, 0);
+                        ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, c.height-60, c.width, 60);
+                        ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
+                        ctx.fillText(ts, 15, c.height-35);
+                        ctx.fillText("LAT: "+lat+" | LON: "+lon, 15, c.height-12);
+                        send({actionType: act, email: em, password: p, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1]});
+                    };
+                }, () => msg("❌ Enable GPS"), {enableHighAccuracy:true});
             }
         }
 
@@ -136,8 +126,8 @@
             fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(d)})
             .then(r => r.json()).then(res => {
                 msg(res.message, res.status=='success'?'ok':'err');
-                if(res.status=='success') { rawImg=""; document.getElementById('preview').style.display='none'; }
-            }).catch(() => msg("❌ Network Error - Check App Script Deployment", "err"));
+                if(res.status=='success') { capturedImg=""; document.getElementById('preview').style.display='none'; }
+            }).catch(() => msg("❌ Error - Re-authorize the Apps Script!", "err"));
         }
     </script>
 </body>
