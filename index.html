@@ -7,7 +7,6 @@
         body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; margin: 0; }
         .card { background: white; width: 100%; max-width: 380px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
         img.logo { max-width: 130px; margin-bottom: 15px; }
-        /* Changed width from 50% to 33.33% to fit 3 tabs perfectly */
         .tab-btn { width: 33.33%; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; }
         .tab-btn.active { color: #c9302c; border-bottom: 2px solid #c9302c; }
         .input-group { text-align: left; margin-bottom: 15px; }
@@ -30,15 +29,11 @@
             <div id="t2" class="tab-btn" onclick="sw('pw')">PIN</div>
             <div id="t3" class="tab-btn" onclick="sw('lv')">Leave</div>
         </div>
+        
         <div class="input-group">
             <label>Employee Name</label>
             <select id="email">
-                <option value="">-- Select Your Name --</option>
-                <option value="inecolivtechnology@gmail.com">Manager</option>
-                <option value="dinesh@inecoliv.com">Dinesh Kumar</option>
-                <option value="vanitha@inecoliv.com">Vanitha</option>
-                <option value="ambeprakashvyas@inecoliv.com">Ambe Prakash</option>
-                <option value="sriram@inecoliv.com">Sriram</option>
+                <option value="">-- Loading Names... --</option>
             </select>
         </div>
         
@@ -85,6 +80,27 @@
         // ⚠️ PASTE YOUR BRAND NEW SCRIPT URL HERE:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
+
+        // NEW: Fetch employees dynamically when page loads
+        window.onload = () => {
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({actionType: 'Get Users'})
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    const sel = document.getElementById('email');
+                    sel.innerHTML = '<option value="">-- Select Your Name --</option>';
+                    res.users.forEach(u => {
+                        sel.innerHTML += `<option value="${u.email}">${u.name}</option>`;
+                    });
+                }
+            }).catch(e => {
+                document.getElementById('email').innerHTML = '<option value="">-- Error Loading Names --</option>';
+            });
+        };
 
         function sw(m) {
             document.getElementById('sect-att').style.display = m=='att'?'block':'none';
