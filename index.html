@@ -55,7 +55,7 @@
             <button style="background:#2563eb" onclick="run('Change Password')">Update PIN</button>
         </div>
 
-        <!-- NEW: LEAVE TAB -->
+        <!-- LEAVE TAB (Updated with Duration) -->
         <div id="sect-lv" style="display:none">
             <div class="input-group"><label>Enter PIN</label><input type="password" id="lv-pw" placeholder="****"></div>
             <div class="input-group">
@@ -65,6 +65,15 @@
                     <option value="Casual Leave">Casual Leave</option>
                     <option value="Sick Leave">Sick Leave</option>
                     <option value="Earned Leave">Earned Leave</option>
+                </select>
+            </div>
+            <!-- NEW: Duration Field -->
+            <div class="input-group">
+                <label>Duration</label>
+                <select id="lv-duration">
+                    <option value="Full Day">Full Day</option>
+                    <option value="First Half">First Half</option>
+                    <option value="Second Half">Second Half</option>
                 </select>
             </div>
             <div class="input-group"><label>From Date</label><input type="date" id="lv-from"></div>
@@ -81,7 +90,6 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
-        // NEW: Fetch employees dynamically when page loads
         window.onload = () => {
             fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -140,12 +148,14 @@
             } else if (act === 'Apply Leave') {
                 const lp = document.getElementById('lv-pw').value;
                 const lt = document.getElementById('lv-type').value;
+                const ld = document.getElementById('lv-duration').value; // Captured duration
                 const lf = document.getElementById('lv-from').value;
                 const lto = document.getElementById('lv-to').value;
                 const lr = document.getElementById('lv-reason').value;
                 
                 if(!lp || !lt || !lf || !lto) { s.innerText="⚠️ Fill PIN, Leave Type, and Dates."; s.className="err"; s.style.display="block"; return; }
-                send({actionType: act, email: em, password: lp, leaveType: lt, fromDate: lf, toDate: lto, reason: lr});
+                // Added leaveDuration to the send payload
+                send({actionType: act, email: em, password: lp, leaveType: lt, leaveDuration: ld, fromDate: lf, toDate: lto, reason: lr});
                 
             } else {
                 if(!rawPhoto || !document.getElementById('pw').value) { s.innerText="⚠️ PIN & Photo Required"; s.className="err"; s.style.display="block"; return; }
@@ -184,6 +194,7 @@
                     } else if (d.actionType === 'Apply Leave') {
                         document.getElementById('lv-pw').value = '';
                         document.getElementById('lv-type').value = '';
+                        document.getElementById('lv-duration').value = 'Full Day'; // Reset duration
                         document.getElementById('lv-from').value = '';
                         document.getElementById('lv-to').value = '';
                         document.getElementById('lv-reason').value = '';
