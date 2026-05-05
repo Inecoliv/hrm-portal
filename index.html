@@ -7,7 +7,7 @@
         body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; margin: 0; }
         .card { background: white; width: 100%; max-width: 380px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
         img.logo { max-width: 130px; margin-bottom: 15px; }
-        .tab-btn { width: 33.33%; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border-bottom: 2px solid #eee; font-weight: bold; font-size: 13px;}
         .tab-btn.active { color: #c9302c; border-bottom: 2px solid #c9302c; }
         .input-group { text-align: left; margin-bottom: 15px; }
         label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
@@ -28,6 +28,7 @@
             <div id="t1" class="tab-btn active" onclick="sw('att')">Attendance</div>
             <div id="t2" class="tab-btn" onclick="sw('pw')">PIN</div>
             <div id="t3" class="tab-btn" onclick="sw('lv')">Leave</div>
+            <div id="t4" class="tab-btn" onclick="sw('admin')" style="display:none;">Admin</div>
         </div>
         
         <div class="input-group">
@@ -37,7 +38,6 @@
             </select>
         </div>
         
-        <!-- ATTENDANCE TAB -->
         <div id="sect-att">
             <div class="input-group"><label>Enter PIN</label><input type="password" id="pw" placeholder="****"></div>
             <div class="cam-btn" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
@@ -48,14 +48,12 @@
             <button style="background:#ef4444" onclick="run('Check Out')">Check Out</button>
         </div>
         
-        <!-- PASSWORD TAB -->
         <div id="sect-pw" style="display:none">
             <div class="input-group"><label>Current PIN</label><input type="password" id="old"></div>
             <div class="input-group"><label>New PIN</label><input type="password" id="new"></div>
             <button style="background:#2563eb" onclick="run('Change Password')">Update PIN</button>
         </div>
 
-        <!-- LEAVE TAB (Updated with Duration) -->
         <div id="sect-lv" style="display:none">
             <div class="input-group"><label>Enter PIN</label><input type="password" id="lv-pw" placeholder="****"></div>
             <div class="input-group">
@@ -67,7 +65,6 @@
                     <option value="Earned Leave">Earned Leave</option>
                 </select>
             </div>
-            <!-- NEW: Duration Field -->
             <div class="input-group">
                 <label>Duration</label>
                 <select id="lv-duration">
@@ -82,41 +79,52 @@
             <button style="background:#f59e0b" onclick="run('Apply Leave')">Apply Leave</button>
         </div>
 
+        <div id="sect-admin" style="display:none">
+            <div class="input-group"><label>Admin PIN</label><input type="password" id="admin-pw" placeholder="****"></div>
+            <div class="input-group"><label>Select Month to Archive</label><input type="month" id="admin-month"></div>
+            <button style="background:#8b5cf6" onclick="run('Backup')">📥 Generate ZIP Backup</button>
+            <button style="background:#ef4444; margin-top:15px;" onclick="if(confirm('WARNING: Did you download the backup first? This wipes the sheet!')) run('Clear Data')">🗑️ Wipe Data</button>
+        </div>
+
         <div id="status"></div>
     </div>
     
     <script>
-        // ⚠️ PASTE YOUR BRAND NEW SCRIPT URL HERE:
+        // ⚠️ PASTE YOUR ACTUAL GOOGLE APPS SCRIPT URL HERE:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
         window.onload = () => {
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({actionType: 'Get Users'})
-            })
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({actionType: 'Get Users'}) })
             .then(r => r.json())
             .then(res => {
                 if(res.status === 'success') {
                     const sel = document.getElementById('email');
                     sel.innerHTML = '<option value="">-- Select Your Name --</option>';
-                    res.users.forEach(u => {
-                        sel.innerHTML += `<option value="${u.email}">${u.name}</option>`;
-                    });
+                    res.users.forEach(u => sel.innerHTML += `<option value="${u.email}">${u.name}</option>`);
                 }
-            }).catch(e => {
-                document.getElementById('email').innerHTML = '<option value="">-- Error Loading Names --</option>';
-            });
+            }).catch(e => document.getElementById('email').innerHTML = '<option value="">-- Error Loading Names --</option>');
         };
+
+        // Magic logic to un-hide the Admin tab
+        document.getElementById('email').addEventListener('change', function() {
+            var em = this.value;
+            // ⚠️ UPDATE THESE WITH YOUR ACTUAL ADMIN/BOSS EMAILS
+            var admins = ["inecolivtechnology@gmail.com", "boss@yourcompany.com", "sriram@yourcompany.com"];
+            document.getElementById('t4').style.display = admins.includes(em) ? 'block' : 'none';
+            if(!admins.includes(em)) sw('att');
+        });
 
         function sw(m) {
             document.getElementById('sect-att').style.display = m=='att'?'block':'none';
             document.getElementById('sect-pw').style.display = m=='pw'?'block':'none';
             document.getElementById('sect-lv').style.display = m=='lv'?'block':'none';
+            document.getElementById('sect-admin').style.display = m=='admin'?'block':'none';
+            
             document.getElementById('t1').className = m=='att'?'tab-btn active':'tab-btn';
             document.getElementById('t2').className = m=='pw'?'tab-btn active':'tab-btn';
             document.getElementById('t3').className = m=='lv'?'tab-btn active':'tab-btn';
+            document.getElementById('t4').className = m=='admin'?'tab-btn active':'tab-btn';
             document.getElementById('status').style.display = 'none';
         }
 
@@ -146,17 +154,19 @@
                 send({actionType: act, email: em, oldPassword: o, newPassword: n});
                 
             } else if (act === 'Apply Leave') {
-                const lp = document.getElementById('lv-pw').value;
-                const lt = document.getElementById('lv-type').value;
-                const ld = document.getElementById('lv-duration').value; // Captured duration
-                const lf = document.getElementById('lv-from').value;
-                const lto = document.getElementById('lv-to').value;
-                const lr = document.getElementById('lv-reason').value;
+                const lp = document.getElementById('lv-pw').value, lt = document.getElementById('lv-type').value;
+                const ld = document.getElementById('lv-duration').value, lf = document.getElementById('lv-from').value;
+                const lto = document.getElementById('lv-to').value, lr = document.getElementById('lv-reason').value;
                 
                 if(!lp || !lt || !lf || !lto) { s.innerText="⚠️ Fill PIN, Leave Type, and Dates."; s.className="err"; s.style.display="block"; return; }
-                // Added leaveDuration to the send payload
                 send({actionType: act, email: em, password: lp, leaveType: lt, leaveDuration: ld, fromDate: lf, toDate: lto, reason: lr});
                 
+            } else if (act === 'Backup' || act === 'Clear Data') {
+                const apw = document.getElementById('admin-pw').value;
+                const am = document.getElementById('admin-month').value;
+                if(!apw || !am) { s.innerText="⚠️ Admin PIN and Month required."; s.className="err"; s.style.display="block"; return; }
+                send({actionType: act, email: em, password: apw, month: am});
+
             } else {
                 if(!rawPhoto || !document.getElementById('pw').value) { s.innerText="⚠️ PIN & Photo Required"; s.className="err"; s.style.display="block"; return; }
                 s.innerText="📍 Getting GPS..."; s.className="load"; s.style.display="block";
@@ -177,34 +187,26 @@
             const s = document.getElementById('status');
             s.innerText="⏳ Processing... Please wait."; s.className="load"; s.style.display="block";
             
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(d)
-            })
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(d) })
             .then(r => r.json())
             .then(res => {
                 s.innerText = res.message;
                 s.className = (res.status === 'success') ? "ok" : "err";
                 
                 if(res.status === 'success') {
+                    if (res.downloadLink) window.open(res.downloadLink, '_blank'); // Triggers ZIP download!
+                    
                     if (d.actionType === 'Change Password') {
-                        document.getElementById('old').value = '';
-                        document.getElementById('new').value = '';
+                        document.getElementById('old').value = ''; document.getElementById('new').value = '';
                     } else if (d.actionType === 'Apply Leave') {
-                        document.getElementById('lv-pw').value = '';
-                        document.getElementById('lv-type').value = '';
-                        document.getElementById('lv-duration').value = 'Full Day'; // Reset duration
-                        document.getElementById('lv-from').value = '';
-                        document.getElementById('lv-to').value = '';
-                        document.getElementById('lv-reason').value = '';
-                    } else {
+                        document.getElementById('lv-pw').value = ''; document.getElementById('lv-type').value = '';
+                        document.getElementById('lv-duration').value = 'Full Day'; document.getElementById('lv-from').value = '';
+                        document.getElementById('lv-to').value = ''; document.getElementById('lv-reason').value = '';
+                    } else if (d.actionType === 'Check In' || d.actionType === 'Check Out') {
                         rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
                     }
                 }
-            }).catch(e => { 
-                s.innerText="❌ System Error. Check network."; s.className="err";
-            });
+            }).catch(e => { s.innerText="❌ System Error. Check network."; s.className="err"; });
         }
     </script>
 </body>
