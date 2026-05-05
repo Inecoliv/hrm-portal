@@ -39,6 +39,14 @@
         </div>
         
         <div id="sect-att">
+            <div class="input-group">
+                <label>Work Mode</label>
+                <select id="work-mode">
+                    <option value="Office/Site">🏢 Office/Site</option>
+                    <option value="WFH">🏠 Work From Home (WFH)</option>
+                    <option value="OD">🚗 On Duty (OD)</option>
+                </select>
+            </div>
             <div class="input-group"><label>Enter PIN</label><input type="password" id="pw" placeholder="****"></div>
             <div class="cam-btn" onclick="document.getElementById('cam').click()">📷 Take Live Selfie
                 <input type="file" id="cam" accept="image/*" capture="user" style="display:none" onchange="pre(event)">
@@ -90,7 +98,6 @@
     </div>
     
     <script>
-        // ✅ YOUR URL IS PASTED HERE PERFECTLY
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
@@ -106,10 +113,8 @@
             }).catch(e => document.getElementById('email').innerHTML = '<option value="">-- Error Loading Names --</option>');
         };
 
-        // Magic logic to un-hide the Admin tab
         document.getElementById('email').addEventListener('change', function() {
             var em = this.value;
-            // ⚠️ UPDATE THESE WITH YOUR ACTUAL ADMIN/BOSS EMAILS
             var admins = ["inecolivtechnology@gmail.com", "boss@yourcompany.com", "sriram@yourcompany.com"];
             document.getElementById('t4').style.display = admins.includes(em) ? 'block' : 'none';
             if(!admins.includes(em)) sw('att');
@@ -178,18 +183,20 @@
                     ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, c.height-60, c.width, 60);
                     ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
                     ctx.fillText(ts, 15, c.height-35); ctx.fillText(lat+", "+lon, 15, c.height-12);
-                    send({actionType: act, email: em, password: document.getElementById('pw').value, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1]});
+                    
+                    // 👉 Added workMode to the payload
+                    const wm = document.getElementById('work-mode').value;
+                    send({actionType: act, email: em, password: document.getElementById('pw').value, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1], workMode: wm});
                 }, () => { s.innerText="❌ Enable GPS/Location"; s.className="err"; }, {enableHighAccuracy:true});
             }
         }
 
-        // --- UPDATED SEND FUNCTION WITH SAFETY NET ---
         function send(d) {
             const s = document.getElementById('status');
             s.innerText="⏳ Processing... Please wait."; s.className="load"; s.style.display="block";
             
             fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(d) })
-            .then(r => r.text()) // Grab raw text first to prevent JSON crash
+            .then(r => r.text()) 
             .then(text => {
                 try {
                     const res = JSON.parse(text);
@@ -197,7 +204,6 @@
                     s.className = (res.status === 'success') ? "ok" : "err";
                     
                     if(res.status === 'success') {
-                        // Triggers download ONLY if the backend sends a link
                         if (res.downloadLink) window.open(res.downloadLink, '_blank'); 
                         
                         if (d.actionType === 'Change Password') {
@@ -211,7 +217,6 @@
                         }
                     }
                 } catch (jsonError) {
-                    // This catches the Google HTML Quota error gracefully!
                     console.error("Google Server Response:", text);
                     s.innerText="❌ Server Blocked Request (Quota Reached or Network Issue).";
                     s.className="err";
