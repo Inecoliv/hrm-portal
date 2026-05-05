@@ -183,30 +183,43 @@
             }
         }
 
+        // --- UPDATED SEND FUNCTION WITH SAFETY NET ---
         function send(d) {
             const s = document.getElementById('status');
             s.innerText="⏳ Processing... Please wait."; s.className="load"; s.style.display="block";
             
             fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(d) })
-            .then(r => r.json())
-            .then(res => {
-                s.innerText = res.message;
-                s.className = (res.status === 'success') ? "ok" : "err";
-                
-                if(res.status === 'success') {
-                    if (res.downloadLink) window.open(res.downloadLink, '_blank'); // Triggers ZIP download!
+            .then(r => r.text()) // Grab raw text first to prevent JSON crash
+            .then(text => {
+                try {
+                    const res = JSON.parse(text);
+                    s.innerText = res.message;
+                    s.className = (res.status === 'success') ? "ok" : "err";
                     
-                    if (d.actionType === 'Change Password') {
-                        document.getElementById('old').value = ''; document.getElementById('new').value = '';
-                    } else if (d.actionType === 'Apply Leave') {
-                        document.getElementById('lv-pw').value = ''; document.getElementById('lv-type').value = '';
-                        document.getElementById('lv-duration').value = 'Full Day'; document.getElementById('lv-from').value = '';
-                        document.getElementById('lv-to').value = ''; document.getElementById('lv-reason').value = '';
-                    } else if (d.actionType === 'Check In' || d.actionType === 'Check Out') {
-                        rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
+                    if(res.status === 'success') {
+                        // Triggers download ONLY if the backend sends a link (which we removed, but harmless to leave here just in case)
+                        if (res.downloadLink) window.open(res.downloadLink, '_blank'); 
+                        
+                        if (d.actionType === 'Change Password') {
+                            document.getElementById('old').value = ''; document.getElementById('new').value = '';
+                        } else if (d.actionType === 'Apply Leave') {
+                            document.getElementById('lv-pw').value = ''; document.getElementById('lv-type').value = '';
+                            document.getElementById('lv-duration').value = 'Full Day'; document.getElementById('lv-from').value = '';
+                            document.getElementById('lv-to').value = ''; document.getElementById('lv-reason').value = '';
+                        } else if (d.actionType === 'Check In' || d.actionType === 'Check Out') {
+                            rawPhoto=""; document.getElementById('preview').style.display='none'; document.getElementById('pw').value = '';
+                        }
                     }
+                } catch (jsonError) {
+                    // This catches the Google HTML Quota error gracefully!
+                    console.error("Google Server Response:", text);
+                    s.innerText="❌ Server Blocked Request (Quota Reached or Network Issue).";
+                    s.className="err";
                 }
-            }).catch(e => { s.innerText="❌ System Error. Check network."; s.className="err"; });
+            }).catch(e => { 
+                s.innerText="❌ Critical Network Error. Check connection."; 
+                s.className="err"; 
+            });
         }
     </script>
 </body>
