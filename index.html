@@ -90,7 +90,7 @@
     </div>
     
     <script>
-        // ⚠️ PASTE YOUR ACTUAL GOOGLE APPS SCRIPT URL HERE:
+        // ✅ YOUR URL IS PASTED HERE PERFECTLY
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0U3-iz0A37ftutIn8hZCo85amEc35cWmpjG6Z2Aqaa02h3op3IXz-Ua8Pn99mXGT_/exec";
         let rawPhoto = "";
 
@@ -197,7 +197,7 @@
                     s.className = (res.status === 'success') ? "ok" : "err";
                     
                     if(res.status === 'success') {
-                        // Triggers download ONLY if the backend sends a link (which we removed, but harmless to leave here just in case)
+                        // Triggers download ONLY if the backend sends a link
                         if (res.downloadLink) window.open(res.downloadLink, '_blank'); 
                         
                         if (d.actionType === 'Change Password') {
