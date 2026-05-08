@@ -83,7 +83,7 @@
             </div>
             <div class="input-group"><label>From Date</label><input type="date" id="lv-from"></div>
             <div class="input-group"><label>To Date</label><input type="date" id="lv-to"></div>
-            <div class="input-group"><label>Reason</label><input type="text" id="lv-reason" placeholder="Brief reason for leave"></div>
+            <div class="input-group"><label>Reason</label><input type="text" id="lv-reason" placeholder="Brief reason for leave" required></div>
             <button style="background:#f59e0b" onclick="run('Apply Leave')">Apply Leave</button>
         </div>
 
@@ -111,6 +111,31 @@
                     res.users.forEach(u => sel.innerHTML += `<option value="${u.email}">${u.name}</option>`);
                 }
             }).catch(e => document.getElementById('email').innerHTML = '<option value="">-- Error Loading Names --</option>');
+
+            // ✨ NEW DATE RESTRICTION LOGIC START ✨
+            const fromDateInput = document.getElementById('lv-from'); 
+            const toDateInput = document.getElementById('lv-to');
+
+            if(fromDateInput && toDateInput) {
+                // Calculate Today's Date
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayString = `${yyyy}-${mm}-${dd}`;
+
+                // Lock From Date so past dates can't be clicked
+                fromDateInput.setAttribute('min', todayString);
+
+                // When From Date is selected, lock To Date accordingly
+                fromDateInput.addEventListener('change', function() {
+                    toDateInput.setAttribute('min', this.value);
+                    if(toDateInput.value && toDateInput.value < this.value) {
+                        toDateInput.value = this.value;
+                    }
+                });
+            }
+            // ✨ NEW DATE RESTRICTION LOGIC END ✨
         };
 
         document.getElementById('email').addEventListener('change', function() {
@@ -163,7 +188,8 @@
                 const ld = document.getElementById('lv-duration').value, lf = document.getElementById('lv-from').value;
                 const lto = document.getElementById('lv-to').value, lr = document.getElementById('lv-reason').value;
                 
-                if(!lp || !lt || !lf || !lto) { s.innerText="⚠️ Fill PIN, Leave Type, and Dates."; s.className="err"; s.style.display="block"; return; }
+                // FIX: Check if !lr (reason) is empty, throw alert if missing
+                if(!lp || !lt || !lf || !lto || !lr) { s.innerText="⚠️ Fill PIN, Leave Type, Dates, and Reason."; s.className="err"; s.style.display="block"; return; }
                 send({actionType: act, email: em, password: lp, leaveType: lt, leaveDuration: ld, fromDate: lf, toDate: lto, reason: lr});
                 
             } else if (act === 'Backup' || act === 'Clear Data') {
@@ -184,7 +210,6 @@
                     ctx.fillStyle = "white"; ctx.font = "bold 16px Arial";
                     ctx.fillText(ts, 15, c.height-35); ctx.fillText(lat+", "+lon, 15, c.height-12);
                     
-                    // 👉 Added workMode to the payload
                     const wm = document.getElementById('work-mode').value;
                     send({actionType: act, email: em, password: document.getElementById('pw').value, location: lat+", "+lon, photoData: c.toDataURL('image/jpeg').split(',')[1], workMode: wm});
                 }, () => { s.innerText="❌ Enable GPS/Location"; s.className="err"; }, {enableHighAccuracy:true});
